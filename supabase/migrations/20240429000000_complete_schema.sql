@@ -218,6 +218,23 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- ── NOTIFICATIONS ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id     uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  actor_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  type        text CHECK (type IN ('match','like','message','system')) NOT NULL,
+  content     text,
+  read_at     timestamp with time zone,
+  created_at  timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "notif_select" ON public.notifications;
+CREATE POLICY "notif_select" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+CREATE INDEX IF NOT EXISTS idx_notif_user ON public.notifications(user_id, created_at DESC);
+ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+
 -- ── AUTO-MATCH ON SWIPE ───────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.handle_swipe_match()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -228,6 +245,10 @@ BEGIN
     -- Record the like
     INSERT INTO public.likes (liker_id, liked_id)
     VALUES (NEW.swiper_id, NEW.swiped_id) ON CONFLICT DO NOTHING;
+
+    -- Create "Someone liked you" notification
+    INSERT INTO public.notifications (user_id, actor_id, type, content)
+    VALUES (NEW.swiped_id, NEW.swiper_id, 'like', 'Sent you a like!') ON CONFLICT DO NOTHING;
 
     -- Check for mutual right swipe → create match + conversation
     IF EXISTS (
@@ -240,6 +261,11 @@ BEGIN
       u2 := GREATEST(NEW.swiper_id, NEW.swiped_id);
       INSERT INTO public.matches (user1_id, user2_id) VALUES (u1, u2) ON CONFLICT DO NOTHING;
       INSERT INTO public.conversations (user1_id, user2_id) VALUES (u1, u2) ON CONFLICT DO NOTHING;
+
+      -- Create Match notifications for both users
+      INSERT INTO public.notifications (user_id, actor_id, type, content)
+      VALUES (NEW.swiper_id, NEW.swiped_id, 'match', 'You have a new match!'),
+             (NEW.swiped_id, NEW.swiper_id, 'match', 'You have a new match!');
     END IF;
   END IF;
   RETURN NEW;
