@@ -263,7 +263,7 @@ export const ProfilePage = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 120, opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="w-full max-w-lg rounded-t-[32px] p-6 pb-10"
+              className="w-full max-w-lg rounded-t-[32px] p-6 pb-nav"
               style={{ background: '#1a0828', border: '1px solid rgba(239,68,68,0.2)', borderBottom: 'none' }}
             >
               <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: 'rgba(255,255,255,0.2)' }} />
@@ -302,8 +302,8 @@ export const ProfilePage = () => {
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
-                  className="flex-1 py-3.5 rounded-xl font-bold text-white text-sm"
-                  style={{ background: '#220f38' }}
+                  className="flex-1 py-3.5 rounded-xl font-bold text-slate-300 text-sm"
+                  style={{ background: '#220f38', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   Cancel
                 </motion.button>
