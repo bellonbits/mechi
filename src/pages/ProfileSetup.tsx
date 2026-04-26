@@ -39,7 +39,29 @@ export const ProfileSetupPage = () => {
     bio: '',
     photos: [] as string[],
     interests: [] as string[],
+    location: '',
   });
+
+  useEffect(() => {
+    if (!user) return;
+    // Attempt to get location automatically
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+          const json = await res.json();
+          const city = json.address?.city || json.address?.town || json.address?.village || json.address?.county || '';
+          const country = json.address?.country || '';
+          if (city) {
+            setData(d => ({ ...d, location: `${city}, ${country}` }));
+          }
+        } catch (e) {
+          console.error("Location fetch failed", e);
+        }
+      }, null, { enableHighAccuracy: false, timeout: 10000 });
+    }
+  }, [user]);
 
   const set = (k: string, v: unknown) => setData((d) => ({ ...d, [k]: v }));
 
@@ -85,6 +107,7 @@ export const ProfileSetupPage = () => {
         gender: data.gender,
         looking_for: data.lookingFor,
         bio: data.bio,
+        location: data.location || 'Unknown',
         avatar_url: data.photos[0] || null,
         photos: data.photos,
         interests: data.interests,

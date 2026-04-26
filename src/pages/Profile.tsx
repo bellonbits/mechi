@@ -19,10 +19,31 @@ const menuItems = [
   { icon: Settings, label: 'Settings', sub: 'Account preferences', path: '/settings' },
   { icon: HelpCircle, label: 'Help & Support', sub: 'Get assistance', path: '/help-support' },
 ];
-
 export const ProfilePage = () => {
   const { user, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || profile?.location) return;
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+          const json = await res.json();
+          const city = json.address?.city || json.address?.town || json.address?.village || json.address?.county || '';
+          const country = json.address?.country || '';
+          if (city) {
+            const newLoc = `${city}, ${country}`;
+            await supabase.from('profiles').update({ location: newLoc }).eq('id', user.id);
+          }
+        } catch (e) {
+          console.error("Location sync failed", e);
+        }
+      }, null, { enableHighAccuracy: false, timeout: 10000 });
+    }
+  }, [user, profile?.location]);
   const [stats, setStats] = useState({ matches: 0, likes: 0, visitors: 0 });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
@@ -136,12 +157,12 @@ export const ProfilePage = () => {
                     {(profile?.full_name as string) || user?.email?.split('@')[0] || 'Your Name'}
                     {profile?.age ? `, ${profile.age}` : ''}
                   </h2>
-                  {profile?.location ? (
-                    <div className="flex items-center gap-1 text-slate-400 text-sm mt-0.5">
+                  {profile?.location && (
+                    <div className="flex items-center gap-1 text-slate-300 text-xs font-medium mt-1">
                       <MapPin size={12} className="text-brand-pink" />
                       <span>{profile.location as string}</span>
                     </div>
-                  ) : null}
+                  )}
                 </div>
                 {!!profile?.is_verified && (
                   <div
