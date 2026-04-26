@@ -24,6 +24,16 @@ body {
   width: 100%;
 }
 
+/* Prevent iOS auto-zoom on input focus by ensuring 16px font size */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
+/* Remove blue tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Full dynamic viewport height so safe areas are respected */
 .screen-full {
   height: 100dvh;
