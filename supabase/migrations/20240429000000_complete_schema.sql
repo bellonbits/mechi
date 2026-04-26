@@ -252,20 +252,24 @@ CREATE TRIGGER on_swipe_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_swipe_match();
 
 -- ── DELETE ACCOUNT RPC ────────────────────────────────────────
+-- This function deletes all user data. 
+-- Note: It deletes the public profile. To delete the AUTH user, 
+-- you usually need a separate management API call or a service_role trigger.
 CREATE OR REPLACE FUNCTION public.delete_my_account()
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE uid uuid := auth.uid();
 BEGIN
+  -- 1. Wipe all interaction data
   DELETE FROM public.swipes        WHERE swiper_id = uid OR swiped_id = uid;
   DELETE FROM public.likes         WHERE liker_id  = uid OR liked_id  = uid;
-  DELETE FROM public.messages      WHERE sender_id  = uid;
-  DELETE FROM public.conversations WHERE user1_id   = uid OR user2_id = uid;
-  DELETE FROM public.matches       WHERE user1_id   = uid OR user2_id = uid;
-  DELETE FROM public.subscriptions WHERE user_id    = uid;
-  UPDATE public.profiles
-    SET full_name = '[Deleted]', avatar_url = null, bio = null,
-        photos = '{}', interests = '{}', is_verified = false,
-        profile_complete = false, updated_at = now()
-  WHERE id = uid;
+  DELETE FROM public.messages      WHERE sender_id = uid;
+  DELETE FROM public.conversations WHERE user1_id  = uid OR user2_id = uid;
+  DELETE FROM public.matches       WHERE user1_id  = uid OR user2_id = uid;
+  DELETE FROM public.subscriptions WHERE user_id   = uid;
+  
+  -- 2. Hard delete the profile (this triggers cascade if other tables depend on it)
+  DELETE FROM public.profiles WHERE id = uid;
+  
+  -- Note: The auth user session will be invalidated on the client side.
 END;
 $$;
