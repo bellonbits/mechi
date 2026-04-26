@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Camera, Settings, Shield, CreditCard, HelpCircle,
+  Camera, Settings, Shield, CreditCard, HelpCircle, Bell,
   LogOut, Sparkles, ChevronRight, MapPin, FileText, Database, Zap,
   Trash2, AlertTriangle, Loader2,
 } from 'lucide-react';
@@ -16,8 +16,8 @@ const menuItems = [
   { icon: Shield, label: 'Privacy & Safety', sub: 'Control your data', path: '/privacy' },
   { icon: Database, label: 'Data Collection', sub: 'What we collect & why', path: '/data-collection' },
   { icon: FileText, label: 'Terms of Service', sub: 'Your rights & our rules', path: '/terms' },
-  { icon: Settings, label: 'Settings', sub: 'Account preferences', path: '/profile' },
-  { icon: HelpCircle, label: 'Help & Support', sub: 'Get assistance', path: '/profile' },
+  { icon: Settings, label: 'Settings', sub: 'Account preferences', path: '/settings' },
+  { icon: HelpCircle, label: 'Help & Support', sub: 'Get assistance', path: '/help-support' },
 ];
 
 export const ProfilePage = () => {
@@ -84,12 +84,23 @@ export const ProfilePage = () => {
         {/* Header */}
         <div className="pt-safe px-5 pb-2 flex justify-between items-center">
           <h1 className="text-white text-2xl font-black tracking-tight">Profile</h1>
-          <button
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: '#220f38' }}
-          >
-            <Settings size={18} className="text-white" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/notifications')}
+              className="w-10 h-10 rounded-full flex items-center justify-center relative"
+              style={{ background: '#220f38' }}
+            >
+              <Bell size={18} className="text-white" />
+              <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-brand-pink border-2 border-app-surface" />
+            </button>
+            <button
+              onClick={() => navigate('/settings')}
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: '#220f38' }}
+            >
+              <Settings size={18} className="text-white" />
+            </button>
+          </div>
         </div>
 
         {/* Profile card */}

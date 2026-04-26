@@ -18,6 +18,9 @@ import { HowItWorksPage } from './pages/legal/HowItWorks';
 import { TermsPage } from './pages/legal/Terms';
 import { PrivacyPage } from './pages/legal/Privacy';
 import { DataCollectionPage } from './pages/legal/DataCollection';
+import { SettingsPage } from './pages/Settings';
+import { SupportPage } from './pages/Support';
+import { NotificationsPage } from './pages/Notifications';
 
 import { Navbar } from './components/layout/Navbar';
 import { CookieConsent } from './components/CookieConsent';
@@ -27,7 +30,7 @@ import { ScrollToTop } from './components/ScrollToTop';
 
 const queryClient = new QueryClient();
 
-const NO_NAV = ['/splash', '/onboarding', '/auth', '/setup', '/subscription', '/video-call'];
+const NO_NAV = ['/splash', '/onboarding', '/auth', '/setup', '/subscription', '/video-call', '/notifications', '/settings', '/help-support'];
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -91,6 +94,9 @@ function App() {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat/:id" element={<ChatRoomPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/help-support" element={<SupportPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/video-call" element={<VideoCallPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
 
