@@ -23,6 +23,7 @@ import { Navbar } from './components/layout/Navbar';
 import { CookieConsent } from './components/CookieConsent';
 import { supabase } from './utils/supabase';
 import { useAuthStore } from './store/useAuthStore';
+import { ScrollToTop } from './components/ScrollToTop';
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <ScrollToTop />
         <LayoutWrapper>
           <Routes>
             {/* Entry flow */}
