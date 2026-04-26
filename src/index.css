@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: #ffffff;
+  background-color: #0d0614;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #0d0614;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+}
+
+/* Full dynamic viewport height so safe areas are respected */
+.screen-full {
+  height: 100dvh;
+  height: 100svh; /* fallback */
+}
+
+/* Padding for iOS notch / Android cutouts */
+.pt-safe {
+  padding-top: max(48px, env(safe-area-inset-top));
+}
+
+/* Padding for home indicator + nav bar */
+.pb-nav {
+  padding-bottom: calc(72px + max(0px, env(safe-area-inset-bottom)));
+}
+
+/* Extra scroll clearance for pages with no fixed buttons */
+.pb-nav-scroll {
+  padding-bottom: calc(80px + max(0px, env(safe-area-inset-bottom)));
+}
+
+@theme {
+  --color-brand-pink: #e91e8c;
+  --color-brand-pink-light: #ff4db2;
+  --color-brand-pink-dark: #c2185b;
+  --color-brand-purple: #9c27b0;
+  --color-brand-purple-light: #ba68c8;
+  --color-app-bg: #0d0614;
+  --color-app-deep: #160820;
+  --color-app-surface: #1a0828;
+  --color-app-card: #220f38;
+  --color-app-card2: #2d1548;
+}
+
+.safe-top {
+  padding-top: max(52px, env(safe-area-inset-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gradient-pink-purple {
+  background: linear-gradient(135deg, #e91e8c, #9c27b0);
+}
+
+.card-glow {
+  box-shadow: 0 0 30px rgba(233, 30, 140, 0.15);
+}
+
+.app-bg {
+  background: linear-gradient(180deg, #1a0828 0%, #0d0614 100%);
+}
