@@ -257,33 +257,57 @@ export const ChatRoomPage = () => {
 
       {/* ── Input bar ── */}
       <div
-        className="shrink-0 flex items-center gap-3 px-4 pt-3"
+        className="shrink-0 px-4 pt-3 space-y-3"
         style={{ paddingBottom: 'max(20px,env(safe-area-inset-bottom))', background: '#0f0520', borderTop: '1px solid rgba(156,39,176,0.12)' }}
       >
-        <button className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: '#1a0828' }}>
-          <Smile size={18} className="text-slate-400" />
-        </button>
+        {/* Icebreakers / Suggestions */}
+        {messages.length === 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar -mx-1 px-1">
+            {[
+              `Hey ${contactName}! 👋`,
+              `Hey! I love your bio! ✨`,
+              `Looking great, ${contactName}! 😊`,
+              `Happy to match with you! 🥂`
+            ].map((text) => (
+              <motion.button
+                key={text}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setInput(text)}
+                className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold text-slate-300"
+                style={{ background: '#1a0828', border: '1px solid rgba(156,39,176,0.3)' }}
+              >
+                {text}
+              </motion.button>
+            ))}
+          </div>
+        )}
 
-        <div className="flex-1 flex items-center px-4 py-2.5 rounded-full" style={{ background: '#1a0828', border: '1.5px solid rgba(156,39,176,0.2)' }}>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => { setInput(e.target.value); broadcastTyping(); }}
-            onKeyDown={handleKey}
-            placeholder="Type a message..."
-            className="flex-1 bg-transparent text-white text-sm outline-none placeholder-slate-500"
-          />
+        <div className="flex items-center gap-3">
+          <button className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: '#1a0828' }}>
+            <Smile size={18} className="text-slate-400" />
+          </button>
+
+          <div className="flex-1 flex items-center px-4 py-2.5 rounded-full" style={{ background: '#1a0828', border: '1.5px solid rgba(156,39,176,0.2)' }}>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => { setInput(e.target.value); broadcastTyping(); }}
+              onKeyDown={handleKey}
+              placeholder="Type a message..."
+              className="flex-1 bg-transparent text-white text-sm outline-none placeholder-slate-500"
+            />
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.88 }}
+            onClick={sendMessage}
+            disabled={!input.trim()}
+            className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all"
+            style={{ background: input.trim() ? 'linear-gradient(135deg,#e91e8c,#9c27b0)' : '#220f38', boxShadow: input.trim() ? '0 0 20px rgba(233,30,140,0.4)' : 'none' }}
+          >
+            <Send size={16} className="text-white" style={{ transform: 'translate(1px,-1px)' }} />
+          </motion.button>
         </div>
-
-        <motion.button
-          whileTap={{ scale: 0.88 }}
-          onClick={sendMessage}
-          disabled={!input.trim()}
-          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all"
-          style={{ background: input.trim() ? 'linear-gradient(135deg,#e91e8c,#9c27b0)' : '#220f38', boxShadow: input.trim() ? '0 0 20px rgba(233,30,140,0.4)' : 'none' }}
-        >
-          <Send size={16} className="text-white" style={{ transform: 'translate(1px,-1px)' }} />
-        </motion.button>
       </div>
     </div>
   );
