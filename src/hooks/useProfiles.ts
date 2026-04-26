@@ -12,6 +12,7 @@ export interface Profile {
   photos: string[];
   interests: string[];
   location: string | null;
+  looking_for: string | null;
   is_verified: boolean;
   is_premium: boolean;
   online?: boolean;

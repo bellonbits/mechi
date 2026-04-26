@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { 
   Bell, Heart, MessageSquare, Star, 
-  ChevronRight, Trash2, ArrowLeft 
+  ChevronRight, ArrowLeft 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Heart, X } from 'lucide-react';
+import { MessageCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
 
@@ -70,7 +70,7 @@ export const MatchModal = ({ isOpen, onClose, myProfile, matchProfile }: MatchMo
                 animate={{ x: -15, rotate: -5, opacity: 1 }}
                 className="w-32 h-32 rounded-[40px] border-[4px] border-white/10 overflow-hidden z-20 shadow-2xl"
               >
-                <img src={myProfile?.avatar_url || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt="" />
+                <img src={myProfile?.avatar_url || ''} className="w-full h-full object-cover" alt="" />
               </motion.div>
               <motion.div 
                 initial={{ x: 60, rotate: 10, opacity: 0 }}

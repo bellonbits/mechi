@@ -1,7 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, MapPin, Shield, Star, 
-  MessageCircle, Heart, X, Zap 
+  ChevronLeft, MapPin, Shield, Star, Zap 
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
@@ -27,7 +25,7 @@ export const PublicProfilePage = () => {
       {/* Hero Image Slider (Simplified) */}
       <div className="relative h-[65vh] w-full">
         <img 
-          src={images[0]} 
+          src={images[0] || ''} 
           className="w-full h-full object-cover" 
           alt={profile.full_name || ''} 
         />
