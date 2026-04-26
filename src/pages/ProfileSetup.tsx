@@ -101,7 +101,7 @@ export const ProfileSetupPage = () => {
     try {
       const isVerified = data.photos.length >= 2;
       const profileData = {
-        id: user?.id,
+        id: user?.id as string,
         full_name: data.name,
         age: parseInt(data.age),
         gender: data.gender,
@@ -117,7 +117,7 @@ export const ProfileSetupPage = () => {
       };
       const { error: dbErr } = await supabase.from('profiles').upsert(profileData);
       if (dbErr) throw dbErr;
-      setProfile({ ...profileData, is_premium: false });
+      setProfile({ ...profileData, is_premium: false } as any);
       navigate('/explore', { replace: true });
     } catch {
       setError('Could not save profile. Continuing anyway...');

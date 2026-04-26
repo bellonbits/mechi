@@ -15,6 +15,7 @@ export interface Profile {
   looking_for: string | null;
   is_verified: boolean;
   is_premium: boolean;
+  profile_complete: boolean;
   online?: boolean;
 }
 

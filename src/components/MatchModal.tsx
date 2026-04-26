@@ -77,7 +77,7 @@ export const MatchModal = ({ isOpen, onClose, myProfile, matchProfile }: MatchMo
                 animate={{ x: 15, rotate: 5, opacity: 1 }}
                 className="w-32 h-32 rounded-[40px] border-[4px] border-white/10 overflow-hidden z-10 shadow-2xl"
               >
-                <img src={matchProfile.photos?.[0] || matchProfile.avatar_url} className="w-full h-full object-cover" alt="" />
+                <img src={matchProfile.photos?.[0] || matchProfile.avatar_url || ''} className="w-full h-full object-cover" alt="" />
               </motion.div>
               <motion.div 
                 animate={{ scale: [1, 1.2, 1] }}
