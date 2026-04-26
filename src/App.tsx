@@ -21,6 +21,7 @@ import { DataCollectionPage } from './pages/legal/DataCollection';
 import { SettingsPage } from './pages/Settings';
 import { SupportPage } from './pages/Support';
 import { NotificationsPage } from './pages/Notifications';
+import { PublicProfilePage } from './pages/PublicProfile';
 
 import { Navbar } from './components/layout/Navbar';
 import { CookieConsent } from './components/CookieConsent';
@@ -30,7 +31,7 @@ import { ScrollToTop } from './components/ScrollToTop';
 
 const queryClient = new QueryClient();
 
-const NO_NAV = ['/splash', '/onboarding', '/auth', '/setup', '/subscription', '/video-call', '/notifications', '/settings', '/help-support'];
+const NO_NAV = ['/splash', '/onboarding', '/auth', '/setup', '/subscription', '/video-call', '/notifications', '/settings', '/help-support', '/public-profile'];
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -97,6 +98,7 @@ function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/help-support" element={<SupportPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/public-profile" element={<PublicProfilePage />} />
             <Route path="/video-call" element={<VideoCallPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
 

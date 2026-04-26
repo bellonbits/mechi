@@ -17,48 +17,76 @@ export interface Profile {
   online?: boolean;
 }
 
-export const useDiscoverProfiles = () => {
+export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; lookingFor?: string }) => {
   const { user } = useAuthStore();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchProfiles = async () => {
     if (!user) return;
+    setLoading(true);
 
-    const fetch = async () => {
-      setLoading(true);
+    const { data: swiped } = await supabase
+      .from('swipes')
+      .select('swiped_id')
+      .eq('swiper_id', user.id);
 
-      // Get IDs we have already swiped
-      const { data: swiped } = await supabase
-        .from('swipes')
-        .select('swiped_id')
-        .eq('swiper_id', user.id);
+    const swipedIds = (swiped ?? []).map((s: { swiped_id: string }) => s.swiped_id);
+    swipedIds.push(user.id);
 
-      const swipedIds = (swiped ?? []).map((s: { swiped_id: string }) => s.swiped_id);
-      swipedIds.push(user.id); // exclude self
+    let query = supabase
+      .from('profiles')
+      .select('*')
+      .eq('profile_complete', true)
+      .not('id', 'in', `(${swipedIds.join(',') || 'null'})`);
 
-      let query = supabase
-        .from('profiles')
-        .select('*')
-        .eq('profile_complete', true)
-        .not('id', 'in', `(${swipedIds.join(',') || 'null'})`)
-        .limit(30);
+    if (filters) {
+      if (filters.minAge) query = query.gte('age', filters.minAge);
+      if (filters.maxAge) query = query.lte('age', filters.maxAge);
+      if (filters.lookingFor && filters.lookingFor !== 'Any') {
+        query = query.eq('looking_for', filters.lookingFor);
+      }
+    }
 
-      const { data, error } = await query;
-      if (!error && data) setProfiles(data as Profile[]);
-      setLoading(false);
-    };
-
-    fetch();
-  }, [user]);
-
-  const recordSwipe = async (swipedId: string, direction: 'left' | 'right') => {
-    if (!user) return;
-    await supabase.from('swipes').insert({ swiper_id: user.id, swiped_id: swipedId, direction });
-    setProfiles((prev) => prev.filter((p) => p.id !== swipedId));
+    const { data, error } = await query.limit(30);
+    if (!error && data) setProfiles(data as Profile[]);
+    setLoading(false);
   };
 
-  return { profiles, loading, recordSwipe };
+  useEffect(() => {
+    fetchProfiles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, filters?.minAge, filters?.maxAge, filters?.lookingFor]);
+
+  const recordSwipe = async (swipedId: string, direction: 'left' | 'right'): Promise<boolean> => {
+    if (!user) return false;
+    
+    // Record the swipe
+    await supabase.from('swipes').insert({ swiper_id: user.id, swiped_id: swipedId, direction });
+    
+    // Remove from local list
+    setProfiles((prev) => prev.filter((p) => p.id !== swipedId));
+
+    if (direction === 'right') {
+      // Check if it was a match (is there a row in public.matches?)
+      // LEAST/GREATEST logic is used in database, we should check both ways or LEAST/GREATEST here
+      const u1 = [user.id, swipedId].sort()[0];
+      const u2 = [user.id, swipedId].sort()[1];
+
+      const { data: match } = await supabase
+        .from('matches')
+        .select('id')
+        .eq('user1_id', u1)
+        .eq('user2_id', u2)
+        .maybeSingle();
+
+      return !!match;
+    }
+
+    return false;
+  };
+
+  return { profiles, loading, recordSwipe, refresh: fetchProfiles };
 };
 
 export const useLikedProfiles = () => {
