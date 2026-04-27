@@ -27,28 +27,29 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] p-6 pb-[env(safe-area-inset-bottom,20px)] rounded-t-[40px] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] flex flex-col rounded-t-[40px] overflow-hidden"
             style={{ 
               background: '#1a0828', 
               borderTop: '1px solid rgba(156,39,176,0.3)',
               maxHeight: '85vh',
-              overflowY: 'auto',
-              paddingBottom: 'calc(max(20px, env(safe-area-inset-bottom)) + 10px)'
             }}
           >
-            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6 shrink-0" />
-            
-            <div className="flex justify-between items-center mb-8 shrink-0">
-              <h2 className="text-white text-2xl font-black">Filters</h2>
-              <button 
-                onClick={onClose}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5"
-              >
-                <X size={20} className="text-white" />
-              </button>
+            {/* Header */}
+            <div className="p-6 pb-2 shrink-0">
+              <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
+              <div className="flex justify-between items-center">
+                <h2 className="text-white text-2xl font-black">Filters</h2>
+                <button 
+                  onClick={onClose}
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform"
+                >
+                  <X size={20} className="text-white" />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-8 pb-32">
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8">
               {/* Distance */}
               <div>
                 <div className="flex justify-between mb-4">
@@ -106,9 +107,13 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
                   ))}
                 </div>
               </div>
+              
+              {/* Extra spacing for bottom scroll */}
+              <div className="h-10" />
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 pb-[calc(env(safe-area-inset-bottom,20px)+10px)] bg-gradient-to-t from-[#1a0828] via-[#1a0828] to-transparent pt-12 z-[102]">
+            {/* Sticky Footer */}
+            <div className="p-6 pt-2 shrink-0 bg-[#1a0828] border-t border-white/5 pb-[calc(env(safe-area-inset-bottom,20px)+16px)]">
               <button 
                 onClick={onClose}
                 className="w-full py-5 rounded-2xl bg-brand-pink text-white font-black uppercase tracking-widest text-sm active:scale-95 transition-transform"
