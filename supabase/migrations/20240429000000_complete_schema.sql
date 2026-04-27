@@ -191,12 +191,34 @@ CREATE POLICY "User avatar delete"   ON storage.objects FOR DELETE USING (
   bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
 
 -- ── REALTIME ──────────────────────────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.subscriptions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.conversations;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.matches;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.likes;
+DO $$
+BEGIN
+  -- Check and add each table safely
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'profiles') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'subscriptions') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.subscriptions;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'messages') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'conversations') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.conversations;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'matches') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.matches;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'likes') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.likes;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'notifications') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  -- Handle case where publication doesn't exist yet (unlikely in Supabase)
+  NULL;
+END $$;
 
 -- ── NEW USER TRIGGER ──────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -233,7 +255,6 @@ ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "notif_select" ON public.notifications;
 CREATE POLICY "notif_select" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE INDEX IF NOT EXISTS idx_notif_user ON public.notifications(user_id, created_at DESC);
-ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 
 -- ── AUTO-MATCH ON SWIPE ───────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.handle_swipe_match()
