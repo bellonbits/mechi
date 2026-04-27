@@ -59,6 +59,7 @@ export const BestiePage = () => {
       });
 
       if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -68,12 +69,14 @@ export const BestiePage = () => {
       };
 
       setMessages(prev => [...prev, aiMsg]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Bestie failed:', err);
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "Oops! My brain froze for a second. Can you say that again?",
+        content: err.message?.includes('API Key') 
+          ? "I'm missing my API Key! Please check your Supabase secrets."
+          : `Oops! ${err.message || 'My brain froze for a second.'} Can you say that again?`,
         created_at: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);

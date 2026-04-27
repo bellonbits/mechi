@@ -75,15 +75,26 @@ Rules:
         model: 'llama-3.1-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(-6), // Keep context of last 6 messages
+          ...chatHistory.slice(-10), 
           { role: 'user', content: message }
         ],
         temperature: 0.8,
-        max_tokens: 500
+        max_tokens: 800
       })
     })
 
     const result = await response.json()
+    
+    if (!response.ok) {
+      console.error('Groq API Error:', result)
+      throw new Error(result.error?.message || 'Groq API failed')
+    }
+
+    if (!result.choices || !result.choices[0]) {
+      console.error('Unexpected Groq Response:', result)
+      throw new Error('No response from AI')
+    }
+
     const reply = result.choices[0].message.content
 
     return new Response(JSON.stringify({ reply }), {
@@ -92,6 +103,7 @@ Rules:
     })
 
   } catch (error) {
+    console.error('Function Error:', error.message)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
