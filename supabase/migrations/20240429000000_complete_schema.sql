@@ -299,3 +299,28 @@ BEGIN
   -- Note: The auth user session will be invalidated on the client side.
 END;
 $$;
+-- ── GET OR CREATE CONVERSATION RPC ────────────────────────────
+-- Safely gets an existing conversation or creates a new one between two users
+CREATE OR REPLACE FUNCTION public.get_or_create_conversation(target_user_id uuid)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  uid uuid := auth.uid();
+  u1 uuid; u2 uuid;
+  conv_id uuid;
+BEGIN
+  u1 := LEAST(uid, target_user_id);
+  u2 := GREATEST(uid, target_user_id);
+  
+  -- Check for existing
+  SELECT id INTO conv_id FROM public.conversations 
+  WHERE user1_id = u1 AND user2_id = u2;
+  
+  IF conv_id IS NULL THEN
+    INSERT INTO public.conversations (user1_id, user2_id)
+    VALUES (u1, u2)
+    RETURNING id INTO conv_id;
+  END IF;
+  
+  RETURN conv_id;
+END;
+$$;

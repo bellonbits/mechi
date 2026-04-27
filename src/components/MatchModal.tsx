@@ -91,7 +91,26 @@ export const MatchModal = ({ isOpen, onClose, myProfile, matchProfile }: MatchMo
             <div className="w-full space-y-4 px-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/chat')}
+                onClick={async () => {
+                  try {
+                    const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
+                      target_user_id: matchProfile.id
+                    });
+                    if (!error && convId) {
+                      navigate(`/chat/${convId}`, { 
+                        state: { 
+                          name: matchProfile.full_name, 
+                          image: matchProfile.avatar_url || matchProfile.photos?.[0],
+                          verified: matchProfile.is_verified 
+                        } 
+                      });
+                    } else {
+                      navigate('/chat');
+                    }
+                  } catch (err) {
+                    navigate('/chat');
+                  }
+                }}
                 className="w-full py-4.5 rounded-2xl bg-white text-black font-black uppercase text-sm flex items-center justify-center gap-3"
               >
                 <MessageCircle size={20} className="fill-current" />
