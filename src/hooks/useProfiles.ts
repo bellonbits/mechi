@@ -16,6 +16,7 @@ export interface Profile {
   is_verified: boolean;
   is_premium: boolean;
   profile_complete: boolean;
+  ai_bestie_name?: string;
   online?: boolean;
 }
 
