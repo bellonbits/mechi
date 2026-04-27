@@ -10,6 +10,13 @@ const corsHeaders = {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
+  if (!GROQ_API_KEY) {
+    return new Response(JSON.stringify({ error: 'GROQ_API_KEY is not set in Supabase secrets' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401,
+    })
+  }
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

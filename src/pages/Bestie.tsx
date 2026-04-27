@@ -58,7 +58,11 @@ export const BestiePage = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Try to parse the error message if it's a FunctionsHttpError
+        const body = await error.context?.json();
+        throw new Error(body?.error || error.message);
+      }
       if (data.error) throw new Error(data.error);
 
       const aiMsg: Message = {
@@ -71,12 +75,18 @@ export const BestiePage = () => {
       setMessages(prev => [...prev, aiMsg]);
     } catch (err: any) {
       console.error('Bestie failed:', err);
+      let errorContent = `Oops! ${err.message || 'My brain froze for a second.'} Can you say that again?`;
+      
+      if (err.message?.includes('API Key') || err.message?.includes('401')) {
+        errorContent = "I'm missing my API Key! Please check your Supabase secrets (GROQ_API_KEY).";
+      } else if (err.message?.includes('Unauthorized')) {
+        errorContent = "Your session expired. Please sign in again.";
+      }
+
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: err.message?.includes('API Key') 
-          ? "I'm missing my API Key! Please check your Supabase secrets."
-          : `Oops! ${err.message || 'My brain froze for a second.'} Can you say that again?`,
+        content: errorContent,
         created_at: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);
