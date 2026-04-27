@@ -22,7 +22,7 @@ export const ChatRoomPage = () => {
   const navigate = useNavigate();
   const { id: convId } = useParams<{ id: string }>();
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore();
   const myId = user?.id || 'me';
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -35,7 +35,7 @@ export const ChatRoomPage = () => {
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Contact info from navigation state or defaults
-  const contact = (location.state as { name?: string; image?: string; verified?: boolean } | null) || {};
+  const contact = (location.state as { name?: string; image?: string; verified?: boolean; userId?: string } | null) || {};
   const contactName = contact.name || 'Match';
   const contactImage = contact.image ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(contactName)}&background=1a0828&color=fff`;
@@ -134,6 +134,45 @@ export const ChatRoomPage = () => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
+  const startVideoCall = async () => {
+    if (!user) return;
+    const targetId = contact.userId;
+
+    if (targetId) {
+      // Notify the callee via their personal incoming-call channel, then navigate
+      const notifChannel = supabase.channel(`incoming-call-${targetId}`);
+      await Promise.race([
+        new Promise<void>((resolve) => {
+          notifChannel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              notifChannel.send({
+                type: 'broadcast',
+                event: 'call-request',
+                payload: {
+                  callerName: (profile?.full_name as string) || user.email?.split('@')[0] || 'Someone',
+                  callerImage: (profile?.avatar_url as string) || `https://ui-avatars.com/api/?name=You&background=1a0828&color=fff`,
+                  callerId: user.id,
+                  conversationId: convId,
+                },
+              }).finally(resolve);
+            }
+          });
+        }),
+        new Promise<void>(resolve => setTimeout(resolve, 2000)),
+      ]);
+    }
+
+    navigate('/video-call', {
+      state: {
+        name: contactName,
+        image: contactImage,
+        targetUserId: targetId,
+        conversationId: convId,
+        isCaller: true,
+      },
+    });
+  };
+
   const grouped = messages.reduce<{ date: string; msgs: Message[] }[]>((acc, msg) => {
     const date = new Date(msg.created_at).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     const last = acc[acc.length - 1];
@@ -171,7 +210,7 @@ export const ChatRoomPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/video-call', { state: { name: contactName, image: contactImage } })} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#1a0828' }}>
+          <button onClick={startVideoCall} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#1a0828' }}>
             <Video size={16} className="text-white" />
           </button>
           <button className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#1a0828' }}>

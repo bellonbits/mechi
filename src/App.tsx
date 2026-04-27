@@ -29,6 +29,7 @@ import { supabase } from './utils/supabase';
 import { useAuthStore } from './store/useAuthStore';
 import { ScrollToTop } from './components/ScrollToTop';
 import { MatchListener } from './components/MatchListener';
+import { CallListener } from './components/CallListener';
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ function App() {
         <ScrollToTop />
         <LayoutWrapper>
           <MatchListener />
+          <CallListener />
           <Routes>
             {/* Entry flow */}
             <Route path="/" element={<Navigate to="/splash" replace />} />

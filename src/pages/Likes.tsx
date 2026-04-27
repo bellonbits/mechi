@@ -66,7 +66,7 @@ export const LikesPage = () => {
                     transition={{ delay: i * 0.06 }}
                     className="relative cursor-pointer active:scale-[0.96] transition-transform"
                     style={{ borderRadius: 22, overflow: 'hidden', aspectRatio: '3/4' }}
-                    onClick={() => blurred ? navigate('/subscription') : navigate('/swipe')}
+                    onClick={() => blurred ? navigate('/subscription') : navigate('/public-profile', { state: { profile } })}
                   >
                     <img
                       src={imgSrc}

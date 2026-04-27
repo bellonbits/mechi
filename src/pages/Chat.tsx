@@ -33,7 +33,7 @@ export const ChatPage = () => {
     const convId = await getOrCreateConversation(user.id, profile.id);
     if (convId) {
       navigate(`/chat/${convId}`, {
-        state: { name: profile.full_name, image: profile.avatar_url, verified: profile.is_verified },
+        state: { name: profile.full_name, image: profile.avatar_url, verified: profile.is_verified, userId: profile.id },
       });
     }
   };
@@ -127,7 +127,7 @@ export const ChatPage = () => {
               <motion.div key={conv.id}
                 initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
                 className="flex items-center gap-3.5 py-3 px-2 -mx-2 rounded-2xl cursor-pointer active:bg-white/5 transition-colors"
-                onClick={() => navigate(`/chat/${conv.id}`, { state: { name: conv.contact.full_name, image: conv.contact.avatar_url, verified: conv.contact.is_verified } })}>
+                onClick={() => navigate(`/chat/${conv.id}`, { state: { name: conv.contact.full_name, image: conv.contact.avatar_url, verified: conv.contact.is_verified, userId: conv.contact.id } })}>
                 <div className="relative shrink-0">
                   <div className="w-[54px] h-[54px] rounded-full overflow-hidden">
                     <img src={conv.contact.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.full_name || 'U')}&background=1a0828&color=fff`}
