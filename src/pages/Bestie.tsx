@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Bot, User, ChevronLeft, Settings, Info, Loader2, Wand2 } from 'lucide-react';
+import { Send, User, ChevronLeft, Settings, Info, Loader2, Wand2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../utils/supabase';
