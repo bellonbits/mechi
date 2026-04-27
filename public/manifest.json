@@ -1,0 +1,20 @@
+{
+  "name": "Mechi Dating",
+  "short_name": "Mechi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0614",
+  "theme_color": "#e91e8c",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

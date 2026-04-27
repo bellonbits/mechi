@@ -1,16 +1,70 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <link rel="apple-touch-icon" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>mechi</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+
+  <!-- PWA & Mobile Meta -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0d0614" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Primary Meta Tags -->
+  <title>Mechi — Find Real Connections & AI Relationship Advice</title>
+  <meta name="title" content="Mechi — Find Real Connections & AI Relationship Advice" />
+  <meta name="description"
+    content="Mechi is the next-generation dating app that combines real human connections with personalized AI relationship coaching. Find matches nearby and get expert wingman/wingwoman advice." />
+  <meta name="keywords"
+    content="dating app, Mechi, find matches, relationship advice, AI wingman, AI wingwoman, dating Kenya, real connections, dating coaching" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mechii.vercel.app/" />
+  <meta property="og:title" content="Mechi — Find Real Connections & AI Relationship Advice" />
+  <meta property="og:description"
+    content="Find your perfect match with Mechi. The only dating app with a built-in AI Bestie to help you master your dating game." />
+  <meta property="og:image" content="/og-image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://mechii.vercel.app/" />
+  <meta property="twitter:title" content="Mechi — Find Real Connections & AI Relationship Advice" />
+  <meta property="twitter:description"
+    content="Find your perfect match with Mechi. The only dating app with a built-in AI Bestie to help you master your dating game." />
+  <meta property="twitter:image" content="/og-image.png" />
+
+  <!-- Structured Data for Dating App -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Mechi",
+      "url": "https://mechi.vercel.app",
+      "description": "Premium dating platform featuring AI-powered relationship coaching and real-time matching.",
+      "applicationCategory": "SocialNetworkingApplication",
+      "operatingSystem": "iOS, Android, Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KES"
+      }
+    }
+    </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
