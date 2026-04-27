@@ -64,14 +64,15 @@ export const SubscriptionPage = () => {
         body: { phoneNumber, amount: 100 },
       });
 
-      if (functionError) throw functionError;
+      if (functionError) throw new Error(functionError.message || 'Payment initiation failed');
+      if (data?.error) throw new Error(data.error);
 
-      // Now we wait for the STK push on the phone
-      // The realtime listener above will handle the success state
-      console.log('STK Push Initiated:', data);
-      
+      // STK push sent — stay in "checking" state and wait for the realtime
+      // subscription update triggered by the Lipana webhook
+      console.log('STK push sent:', data?.transactionId);
+
     } catch (err: any) {
-      setError(err.message || 'Failed to initiate payment');
+      setError(err.message || 'Failed to initiate payment. Please try again.');
       setLoading(false);
       setStatus('error');
     }
