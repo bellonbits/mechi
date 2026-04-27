@@ -27,8 +27,8 @@ export const useConversations = () => {
       .from('conversations')
       .select(`
         id, last_message, last_message_at,
-        user1:profiles!conversations_user1_id_fkey(id, full_name, avatar_url, is_verified),
-        user2:profiles!conversations_user2_id_fkey(id, full_name, avatar_url, is_verified)
+        user1:profiles!user1_id(id, full_name, avatar_url, is_verified),
+        user2:profiles!user2_id(id, full_name, avatar_url, is_verified)
       `)
       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false });

@@ -85,8 +85,8 @@ CREATE INDEX IF NOT EXISTS idx_swipes_swiped ON public.swipes(swiped_id);
 -- ── MATCHES ───────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.matches (
   id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user1_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  user2_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  user1_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  user2_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   created_at  timestamp with time zone DEFAULT now(),
   UNIQUE (user1_id, user2_id)
 );
@@ -101,8 +101,8 @@ CREATE POLICY "matches_insert" ON public.matches FOR INSERT WITH CHECK (true);
 -- ── CONVERSATIONS ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.conversations (
   id               uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user1_id         uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  user2_id         uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  user1_id         uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  user2_id         uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   last_message     text,
   last_message_at  timestamp with time zone DEFAULT now(),
   created_at       timestamp with time zone DEFAULT now(),
@@ -156,8 +156,8 @@ CREATE INDEX IF NOT EXISTS idx_msgs_conv ON public.messages(conversation_id, cre
 -- ── LIKES ─────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.likes (
   id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-  liker_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  liked_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  liker_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  liked_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   created_at  timestamp with time zone DEFAULT now(),
   UNIQUE (liker_id, liked_id)
 );

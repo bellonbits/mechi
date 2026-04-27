@@ -167,7 +167,7 @@ export const useLikedProfiles = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('likes')
-        .select('id, created_at, liker:profiles!likes_liker_id_fkey(*)')
+        .select('id, created_at, liker:profiles!liker_id(*)')
         .eq('liked_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -207,8 +207,8 @@ export const useMatches = () => {
       const { data, error } = await supabase
         .from('matches')
         .select(`
-          user1:profiles!matches_user1_id_fkey(*),
-          user2:profiles!matches_user2_id_fkey(*)
+          user1:profiles!user1_id(*),
+          user2:profiles!user2_id(*)
         `)
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
