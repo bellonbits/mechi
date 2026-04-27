@@ -104,17 +104,18 @@ export const ProfileSetupPage = () => {
     setError('');
     try {
       const isVerified = data.photos.length >= 2;
+      const finalInterests = [...data.interests.filter(i => !i.startsWith('PREF:')), `PREF:${data.preference}`];
       const profileData = {
         id: user?.id as string,
         full_name: data.name,
         age: parseInt(data.age),
         gender: data.gender,
-        looking_for: data.lookingFor,
+        looking_for: data.lookingFor, // Dating Goal
         bio: data.bio,
         location: data.location || 'Unknown',
         avatar_url: data.photos[0] || null,
         photos: data.photos,
-        interests: data.interests,
+        interests: finalInterests,
         is_verified: isVerified,
         profile_complete: true,
         updated_at: new Date().toISOString(),

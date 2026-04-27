@@ -20,7 +20,7 @@ export interface Profile {
 }
 
 export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; lookingFor?: string }) => {
-  const { user } = useAuthStore();
+  const { user, profile: myProfile } = useAuthStore();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +28,17 @@ export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; 
     if (!user) return;
     setLoading(true);
 
-    // Fetch swipes to exclude. If recycling, we only exclude 'right' swipes (likes)
+    // Get current user's profile to extract preference
+    const myPrefTag = myProfile?.interests?.find((i: string) => i.startsWith('PREF:'));
+    let myPreference = myPrefTag ? myPrefTag.replace('PREF:', '') : 'Everyone';
+    
+    // Fallback if not in store yet
+    if (!myPrefTag) {
+      const { data: myData } = await supabase.from('profiles').select('interests').eq('id', user.id).single();
+      const freshTag = myData?.interests?.find((i: string) => i.startsWith('PREF:'));
+      if (freshTag) myPreference = freshTag.replace('PREF:', '');
+    }
+
     const { data: swiped } = await supabase
       .from('swipes')
       .select('swiped_id, direction')
@@ -46,10 +56,16 @@ export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; 
       .eq('profile_complete', true)
       .not('id', 'in', `(${swipedIds.join(',') || 'null'})`);
 
+    // Gender Filter
+    if (myPreference === 'Men') query = query.eq('gender', 'Man');
+    else if (myPreference === 'Women') query = query.eq('gender', 'Woman');
+
     if (filters) {
       if (filters.minAge) query = query.gte('age', filters.minAge);
       if (filters.maxAge) query = query.lte('age', filters.maxAge);
-      if (filters.lookingFor && filters.lookingFor !== 'Any') {
+      
+      // Goal Filter (looking_for is the dating goal now)
+      if (filters.lookingFor && filters.lookingFor !== 'Any' && !['Men','Women','Everyone'].includes(filters.lookingFor)) {
         query = query.eq('looking_for', filters.lookingFor);
       }
     }
