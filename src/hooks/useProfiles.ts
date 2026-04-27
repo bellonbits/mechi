@@ -24,16 +24,20 @@ export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (isRecycling = false) => {
     if (!user) return;
     setLoading(true);
 
+    // Fetch swipes to exclude. If recycling, we only exclude 'right' swipes (likes)
     const { data: swiped } = await supabase
       .from('swipes')
-      .select('swiped_id')
+      .select('swiped_id, direction')
       .eq('swiper_id', user.id);
 
-    const swipedIds = (swiped ?? []).map((s: { swiped_id: string }) => s.swiped_id);
+    const swipedIds = (swiped ?? [])
+      .filter(s => isRecycling ? s.direction === 'right' : true)
+      .map((s: { swiped_id: string }) => s.swiped_id);
+    
     swipedIds.push(user.id);
 
     let query = supabase
@@ -51,12 +55,56 @@ export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; 
     }
 
     const { data, error } = await query.limit(30);
-    if (!error && data) setProfiles(data as Profile[]);
+    
+    if (!error && data) {
+      if (data.length === 0 && !isRecycling) {
+        // No new profiles left but haven't tried recycling yet
+        await fetchProfiles(true);
+      } else {
+        setProfiles(data as Profile[]);
+      }
+    }
     setLoading(false);
   };
 
   useEffect(() => {
     fetchProfiles();
+
+    // REAL-TIME: Listen for new complete profiles
+    const channel = supabase
+      .channel('new_profiles')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'profiles'
+      }, (payload) => {
+        const newProfile = payload.new as Profile;
+        if (newProfile.profile_complete && newProfile.id !== user?.id) {
+          setProfiles(prev => {
+            // Only add if not already in list
+            if (prev.some(p => p.id === newProfile.id)) return prev;
+            return [newProfile, ...prev];
+          });
+        }
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles'
+      }, (payload) => {
+        const updated = payload.new as Profile;
+        if (updated.profile_complete && updated.id !== user?.id) {
+          setProfiles(prev => {
+            if (prev.some(p => p.id === updated.id)) return prev;
+            return [updated, ...prev];
+          });
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, filters?.minAge, filters?.maxAge, filters?.lookingFor]);
 
