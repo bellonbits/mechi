@@ -35,6 +35,10 @@ export const ExplorePage = () => {
   const { notifications } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read_at).length;
 
+  const getGoalCount = (goal: string) => {
+    return profiles.filter(p => p.looking_for === goal).length;
+  };
+
   const displayName = (profile?.full_name as string) || user?.email?.split('@')[0] || 'You';
   const avatarSrc =
     (profile?.avatar_url as string) ||
@@ -123,6 +127,44 @@ export const ExplorePage = () => {
           </div>
         </motion.div>
       </div>
+      {/* AI Bestie Promotion */}
+      <div className="px-5 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative rounded-[32px] p-6 cursor-pointer overflow-hidden group shadow-2xl"
+          style={{ 
+            background: 'linear-gradient(135deg, #1a0828 0%, #2a0845 100%)',
+            border: '1.5px solid rgba(156, 39, 176, 0.3)'
+          }}
+          onClick={() => navigate('/bestie')}
+        >
+          <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-brand-pink/20 blur-[50px] rounded-full" />
+          
+          <div className="flex items-center justify-between mb-2 relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-pink to-brand-purple flex items-center justify-center shadow-lg shadow-brand-pink/20">
+              <Sparkles size={24} className="text-white" />
+            </div>
+            <div className="flex -space-x-2">
+              <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
+                <Users size={12} className="text-white" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="relative z-10">
+            <h3 className="text-white font-black text-xl mb-1">Meet {profile?.ai_bestie_name || 'your AI Bestie'}</h3>
+            <p className="text-slate-400 text-xs leading-relaxed max-w-[220px]">
+              Get real-time advice on your matches, improve your bio, and master your dating game.
+            </p>
+          </div>
+
+          <div className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-brand-pink group-hover:border-brand-pink transition-all">
+            <ArrowUpRight size={18} className="text-white" />
+          </div>
+        </motion.div>
+      </div>
 
       {/* Real-time Counter */}
       <div className="px-5 mb-8">
@@ -168,7 +210,7 @@ export const ExplorePage = () => {
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="flex items-center gap-1.5 mb-1 opacity-60">
                    <Users size={12} className="text-white" />
-                   <span className="text-white text-[10px] font-bold uppercase tracking-widest">{Math.floor(Math.random() * 20) + 5} online</span>
+                   <span className="text-white text-[10px] font-bold uppercase tracking-widest">{getGoalCount(cat.id) || Math.floor(Math.random() * 5) + 1} online</span>
                 </div>
                 <span className="text-white font-black text-sm block leading-tight">{cat.label}</span>
               </div>

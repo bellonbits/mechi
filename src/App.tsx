@@ -22,6 +22,7 @@ import { SettingsPage } from './pages/Settings';
 import { SupportPage } from './pages/Support';
 import { NotificationsPage } from './pages/Notifications';
 import { PublicProfilePage } from './pages/PublicProfile';
+import { BestiePage } from './pages/Bestie';
 
 import { Navbar } from './components/layout/Navbar';
 import { CookieConsent } from './components/CookieConsent';
@@ -31,6 +32,7 @@ import { ScrollToTop } from './components/ScrollToTop';
 import { MatchListener } from './components/MatchListener';
 import { CallListener } from './components/CallListener';
 import { ToastListener } from './components/ToastListener';
+import { AuthGuard } from './components/AuthGuard';
 
 const queryClient = new QueryClient();
 
@@ -50,24 +52,27 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
-  const { setUser, setProfile } = useAuthStore();
+  const { setUser, setProfile, setLoading } = useAuthStore();
 
   useEffect(() => {
-    // Restore session on mount (works even after app restart)
+    // Restore session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) {
+        fetchProfile(session.user.id).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        // Only clear state when the user explicitly signs out
         setUser(null);
         setProfile(null);
+        setLoading(false);
       } else if (session?.user) {
-        // SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED — keep/restore the session
         setUser(session.user);
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id).finally(() => setLoading(false));
       }
     });
 
@@ -87,36 +92,39 @@ function App() {
           <MatchListener />
           <CallListener />
           <ToastListener />
-          <Routes>
-            {/* Entry flow */}
-            <Route path="/" element={<Navigate to="/splash" replace />} />
-            <Route path="/splash" element={<SplashScreen />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/setup" element={<ProfileSetupPage />} />
+          <AuthGuard>
+            <Routes>
+              {/* Entry flow */}
+              <Route path="/" element={<Navigate to="/splash" replace />} />
+              <Route path="/splash" element={<SplashScreen />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/setup" element={<ProfileSetupPage />} />
 
-            {/* Main app */}
-            <Route path="/explore" element={<ExplorePage />} />
-            <Route path="/swipe" element={<SwipePage />} />
-            <Route path="/likes" element={<LikesPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/chat/:id" element={<ChatRoomPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/help-support" element={<SupportPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/public-profile" element={<PublicProfilePage />} />
-            <Route path="/video-call" element={<VideoCallPage />} />
-            <Route path="/subscription" element={<SubscriptionPage />} />
+              {/* Main app */}
+              <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/swipe" element={<SwipePage />} />
+              <Route path="/likes" element={<LikesPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/chat/:id" element={<ChatRoomPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/help-support" element={<SupportPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/bestie" element={<BestiePage />} />
+              <Route path="/public-profile" element={<PublicProfilePage />} />
+              <Route path="/video-call" element={<VideoCallPage />} />
+              <Route path="/subscription" element={<SubscriptionPage />} />
 
-            {/* Legal */}
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/data-collection" element={<DataCollectionPage />} />
+              {/* Legal */}
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/data-collection" element={<DataCollectionPage />} />
 
-            <Route path="*" element={<Navigate to="/splash" replace />} />
-          </Routes>
+              <Route path="*" element={<Navigate to="/splash" replace />} />
+            </Routes>
+          </AuthGuard>
         </LayoutWrapper>
       </BrowserRouter>
     </QueryClientProvider>

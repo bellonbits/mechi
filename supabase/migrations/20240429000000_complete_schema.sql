@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   is_verified   boolean DEFAULT false,
   is_premium    boolean DEFAULT false,
   profile_complete boolean DEFAULT false,
+  ai_bestie_name text DEFAULT 'Mechi Bestie',
   created_at    timestamp with time zone DEFAULT now(),
   updated_at    timestamp with time zone DEFAULT now()
 );
@@ -244,7 +245,7 @@ CREATE TRIGGER on_auth_user_created
 CREATE TABLE IF NOT EXISTS public.notifications (
   id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id     uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  actor_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  actor_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   type        text CHECK (type IN ('match','like','message','system')) NOT NULL,
   content     text,
   read_at     timestamp with time zone,

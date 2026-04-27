@@ -1,9 +1,10 @@
-import { Home, Compass, Heart, MessageCircle, User } from 'lucide-react';
+import { Home, Compass, Heart, MessageCircle, User, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const tabs = [
-  { label: 'Home', icon: Home, path: '/swipe' },
   { label: 'Explore', icon: Compass, path: '/explore' },
+  { label: 'Swipe', icon: Home, path: '/swipe' },
+  { label: 'Bestie', icon: Sparkles, path: '/bestie' },
   { label: 'Likes', icon: Heart, path: '/likes' },
   { label: 'Chats', icon: MessageCircle, path: '/chat' },
   { label: 'Profile', icon: User, path: '/profile' },

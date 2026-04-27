@@ -8,7 +8,7 @@
 CREATE TABLE IF NOT EXISTS public.notifications (
   id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id     uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  actor_id    uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  actor_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   type        text CHECK (type IN ('match', 'like', 'message', 'system')) NOT NULL,
   content     text NOT NULL,
   read_at     timestamp with time zone,
