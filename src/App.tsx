@@ -22,6 +22,7 @@ import { SettingsPage } from './pages/Settings';
 import { SupportPage } from './pages/Support';
 import { NotificationsPage } from './pages/Notifications';
 import { PublicProfilePage } from './pages/PublicProfile';
+import { AdminPage } from './pages/Admin';
 import { BestiePage } from './pages/Bestie';
 
 import { Navbar } from './components/layout/Navbar';
@@ -110,6 +111,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/help-support" element={<SupportPage />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/bestie" element={<BestiePage />} />
               <Route path="/public-profile" element={<PublicProfilePage />} />

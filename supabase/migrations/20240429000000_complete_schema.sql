@@ -20,11 +20,23 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   location      text,
   is_verified   boolean DEFAULT false,
   is_premium    boolean DEFAULT false,
+  is_admin      boolean DEFAULT false,
   profile_complete boolean DEFAULT false,
   ai_bestie_name text DEFAULT 'Mechi Bestie',
   created_at    timestamp with time zone DEFAULT now(),
   updated_at    timestamp with time zone DEFAULT now()
 );
+
+-- ── ADMIN ANALYTICS ──────────────────────────────────────────
+CREATE OR REPLACE VIEW public.admin_analytics AS
+SELECT
+  (SELECT count(*) FROM public.profiles) as total_users,
+  (SELECT count(*) FROM public.matches) as total_matches,
+  (SELECT count(*) FROM public.profiles WHERE is_premium = true) as premium_users,
+  (SELECT count(*) FROM public.swipes) as total_swipes;
+
+ALTER VIEW public.admin_analytics OWNER TO postgres;
+GRANT SELECT ON public.admin_analytics TO authenticated;
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 

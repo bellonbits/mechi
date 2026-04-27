@@ -105,7 +105,16 @@ export const ProfilePage = () => {
         {/* Header */}
         <div className="pt-safe px-5 pb-2 flex justify-between items-center">
           <h1 className="text-white text-2xl font-black tracking-tight">Profile</h1>
+          
           <div className="flex gap-2">
+            {profile?.is_admin && (
+              <button 
+                onClick={() => navigate('/admin')}
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-brand-pink/20 border border-brand-pink/30"
+              >
+                <Shield size={18} className="text-brand-pink" />
+              </button>
+            )}
             <button
               onClick={() => navigate('/notifications')}
               className="w-10 h-10 rounded-full flex items-center justify-center relative"

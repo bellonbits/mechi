@@ -15,6 +15,7 @@ export interface Profile {
   looking_for: string | null;
   is_verified: boolean;
   is_premium: boolean;
+  is_admin: boolean;
   profile_complete: boolean;
   ai_bestie_name?: string;
   online?: boolean;
