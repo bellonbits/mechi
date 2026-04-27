@@ -300,7 +300,7 @@ export const ChatRoomPage = () => {
 
           <motion.button
             whileTap={{ scale: 0.88 }}
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={!input.trim()}
             className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all"
             style={{ background: input.trim() ? 'linear-gradient(135deg,#e91e8c,#9c27b0)' : '#220f38', boxShadow: input.trim() ? '0 0 20px rgba(233,30,140,0.4)' : 'none' }}

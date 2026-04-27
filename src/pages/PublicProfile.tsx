@@ -1,5 +1,6 @@
+import { motion } from 'framer-motion';
 import { 
-  ChevronLeft, MapPin, Shield, Star, Zap 
+  ChevronLeft, MapPin, Shield, Star, Zap, Heart 
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
