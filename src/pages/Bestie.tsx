@@ -31,6 +31,23 @@ export const BestiePage = () => {
   }, [profile]);
 
   useEffect(() => {
+    if (!user) return;
+    const fetchHistory = async () => {
+      const { data, error } = await supabase
+        .from('ai_bestie_messages')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(30);
+      
+      if (!error && data) {
+        setMessages(data as Message[]);
+      }
+    };
+    fetchHistory();
+  }, [user]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -52,14 +69,10 @@ export const BestiePage = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-bestie', {
-        body: { 
-          message: userMsg.content,
-          chatHistory: messages.map(m => ({ role: m.role, content: m.content }))
-        }
+        body: { message: userMsg.content }
       });
 
       if (error) {
-        // Try to parse the error message if it's a FunctionsHttpError
         const body = await error.context?.json();
         throw new Error(body?.error || error.message);
       }

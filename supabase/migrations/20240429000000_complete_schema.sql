@@ -346,3 +346,19 @@ BEGIN
   RETURN conv_id;
 END;
 $$;
+
+-- ── AI BESTIE MEMORY ──────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.ai_bestie_messages (
+  id          uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id     uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  role        text CHECK (role IN ('user','assistant')) NOT NULL,
+  content     text NOT NULL,
+  created_at  timestamp with time zone DEFAULT now()
+);
+
+ALTER TABLE public.ai_bestie_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "bestie_msg_select" ON public.ai_bestie_messages;
+DROP POLICY IF EXISTS "bestie_msg_insert" ON public.ai_bestie_messages;
+CREATE POLICY "bestie_msg_select" ON public.ai_bestie_messages FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "bestie_msg_insert" ON public.ai_bestie_messages FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE INDEX IF NOT EXISTS idx_bestie_msg_user ON public.ai_bestie_messages(user_id, created_at ASC);

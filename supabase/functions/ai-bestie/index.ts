@@ -27,9 +27,9 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) throw new Error('Unauthorized')
 
-    const { message, chatHistory = [] } = await req.json()
+    const { message } = await req.json()
 
-    // Fetch user profile for context
+    // 1. Fetch user profile for context
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
@@ -38,40 +38,50 @@ serve(async (req) => {
 
     if (!profile) throw new Error('Profile not found')
 
+    // 2. Fetch Chat History from DB (Long term memory)
+    const { data: history } = await supabase
+      .from('ai_bestie_messages')
+      .select('role, content')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(15)
+
+    const chatHistory = (history || []).reverse()
+
+    // 3. Save new User Message to DB
+    await supabase.from('ai_bestie_messages').insert({
+      user_id: user.id,
+      role: 'user',
+      content: message
+    })
+
     // Determine tone based on preferences
-    // If looking for Women -> Male tone (Bro/Wingman)
-    // If looking for Men -> Female tone (Girlie/Wingwoman)
     const preference = profile.interests.find((i: string) => i.startsWith('PREF:'))?.split(':')[1] || profile.looking_for
     const isInterestedInWomen = preference?.toLowerCase().includes('women') || preference?.toLowerCase().includes('everyone')
     const isInterestedInMen = preference?.toLowerCase().includes('men') || preference?.toLowerCase().includes('everyone')
     
     let tone = "a wise, supportive best friend"
-    let identity = "Bestie"
-    
     if (isInterestedInWomen && !isInterestedInMen) {
       tone = "a cool, street-smart male wingman (Bro tone). Be encouraging, direct, and use some light-hearted 'guy talk' about relationships."
-      identity = "Your Wingman"
     } else if (isInterestedInMen && !isInterestedInWomen) {
       tone = "a wise, protective big sister (Lady tone). Be empathetic, intuitive, and give that 'girl-to-girl' perspective on men and dating."
-      identity = "Your Wingwoman"
     }
 
     const aiName = profile.ai_bestie_name || 'Mechi Bestie'
-    
     const systemPrompt = `You are ${aiName}, ${tone}. 
-Your user is ${profile.full_name}, who is ${profile.age} years old and looking for ${profile.looking_for}. 
-Their interests include: ${profile.interests.filter((i:string) => !i.startsWith('PREF:')).join(', ')}.
-User Bio: ${profile.bio}
-User Location: ${profile.location}
+Your user is ${profile.full_name}, ${profile.age}yo, looking for ${profile.looking_for}. 
+Interests: ${profile.interests.filter((i:string) => !i.startsWith('PREF:')).join(', ')}.
+Bio: ${profile.bio}
+Location: ${profile.location}
 
 Rules:
 1. Stay in character as ${aiName}.
 2. Give relationship advice that aligns with their goals.
 3. Be conversational, fun, and empathetic.
-4. If they are in Kenya (based on location), feel free to use some light Sheng or Kenyan vibes.
-5. Keep responses concise but meaningful.
-6. NEVER mention you are an AI. You are their Bestie.`
+4. If in Kenya, use light Sheng/Kenyan vibes.
+5. NEVER mention you are an AI.`
 
+    // 4. Call Groq
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -82,7 +92,7 @@ Rules:
         model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(-10), 
+          ...chatHistory,
           { role: 'user', content: message }
         ],
         temperature: 0.8,
@@ -91,18 +101,16 @@ Rules:
     })
 
     const result = await response.json()
+    if (!response.ok) throw new Error(result.error?.message || 'Groq API failed')
     
-    if (!response.ok) {
-      console.error('Groq API Error:', result)
-      throw new Error(result.error?.message || 'Groq API failed')
-    }
-
-    if (!result.choices || !result.choices[0]) {
-      console.error('Unexpected Groq Response:', result)
-      throw new Error('No response from AI')
-    }
-
     const reply = result.choices[0].message.content
+
+    // 5. Save AI Response to DB
+    await supabase.from('ai_bestie_messages').insert({
+      user_id: user.id,
+      role: 'assistant',
+      content: reply
+    })
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
