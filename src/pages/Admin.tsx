@@ -168,9 +168,12 @@ export const AdminPage = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group"
+                className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group active:scale-[0.98] transition-all"
               >
-                <div className="flex items-center gap-4">
+                <div 
+                  className="flex items-center gap-4 cursor-pointer flex-1"
+                  onClick={() => navigate('/public-profile', { state: { profile: u } })}
+                >
                   <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-800 relative">
                     {u.avatar_url ? (
                       <img src={u.avatar_url} className="w-full h-full object-cover" alt="" />
@@ -183,7 +186,7 @@ export const AdminPage = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-white font-bold text-sm">{u.full_name || 'Incomplete Profile'}</h4>
+                      <h4 className="text-white font-bold text-sm group-hover:text-brand-pink transition-colors">{u.full_name || 'Incomplete Profile'}</h4>
                       {u.is_verified && <CheckCircle size={12} className="text-brand-pink" />}
                       {u.is_premium && <Crown size={12} className="text-yellow-400" />}
                     </div>
@@ -191,7 +194,7 @@ export const AdminPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative z-10">
                   <button 
                     onClick={() => toggleVerify(u.id, u.is_verified)}
                     className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${u.is_verified ? 'bg-brand-pink/20 text-brand-pink' : 'bg-white/5 text-slate-500'}`}
