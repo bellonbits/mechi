@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
+import { supabase } from '../utils/supabase';
 
 interface MatchModalProps {
   isOpen: boolean;
