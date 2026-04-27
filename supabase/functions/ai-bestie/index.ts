@@ -79,14 +79,14 @@ Rules:
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: [
           { role: 'system', content: systemPrompt },
           ...chatHistory.slice(-10), 
           { role: 'user', content: message }
         ],
         temperature: 0.8,
-        max_tokens: 800
+        max_tokens: 1000
       })
     })
 
