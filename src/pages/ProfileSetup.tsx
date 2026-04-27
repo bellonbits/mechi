@@ -13,14 +13,16 @@ const INTERESTS = [
 ];
 
 const GENDERS = ['Man', 'Woman', 'Non-binary', 'Prefer not to say'];
-const LOOKING_FOR = ['Men', 'Women', 'Everyone'];
+const GENDER_PREF = ['Men', 'Women', 'Everyone'];
+const GOALS = ['Serious Dating', 'Casual Dating', 'New Friends', 'Something Short-term'];
 
 const STEPS = [
   { id: 1, title: 'Who are you?', sub: 'Your real name builds trust' },
-  { id: 2, title: 'About you', sub: 'Help others find the right match' },
-  { id: 3, title: 'Your story', sub: 'Authentic bios get 3× more matches' },
-  { id: 4, title: 'Your photos', sub: '2 real photos = Verified badge' },
-  { id: 5, title: 'Your interests', sub: 'Connect over what you love' },
+  { id: 2, title: 'Basic Info', sub: 'Help us find your perfect match' },
+  { id: 3, title: 'Defining You', sub: 'What are you looking for?' },
+  { id: 4, title: 'Your story', sub: 'Authentic bios get 3× more matches' },
+  { id: 5, title: 'Your photos', sub: '2 real photos = Verified badge' },
+  { id: 6, title: 'Your interests', sub: 'Connect over what you love' },
 ];
 
 export const ProfileSetupPage = () => {
@@ -35,7 +37,8 @@ export const ProfileSetupPage = () => {
     name: user?.user_metadata?.full_name || '',
     age: '',
     gender: '',
-    lookingFor: '',
+    preference: '',
+    lookingFor: '', // This will be the GOAL
     bio: '',
     photos: [] as string[],
     interests: [] as string[],
@@ -89,9 +92,10 @@ export const ProfileSetupPage = () => {
 
   const canNext = () => {
     if (step === 1) return data.name.trim().length >= 2;
-    if (step === 2) return data.age && parseInt(data.age) >= 18 && data.gender && data.lookingFor;
-    if (step === 3) return data.bio.trim().length >= 30;
-    if (step === 4) return data.photos.length >= 1;
+    if (step === 2) return data.age && parseInt(data.age) >= 18 && data.gender && data.preference;
+    if (step === 3) return !!data.lookingFor;
+    if (step === 4) return data.bio.trim().length >= 30;
+    if (step === 5) return data.photos.length >= 1;
     return data.interests.length >= 3;
   };
 
@@ -200,12 +204,12 @@ export const ProfileSetupPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-slate-300 text-xs font-semibold tracking-wide uppercase mb-2 block">Looking for</label>
+                  <label className="text-slate-300 text-xs font-semibold tracking-wide uppercase mb-2 block">Interested in</label>
                   <div className="flex gap-2">
-                    {LOOKING_FOR.map((l) => (
-                      <button key={l} onClick={() => set('lookingFor', l)}
+                    {GENDER_PREF.map((l) => (
+                      <button key={l} onClick={() => set('preference', l)}
                         className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all"
-                        style={{ background: data.lookingFor === l ? '#e91e8c' : '#220f38', color: data.lookingFor === l ? '#fff' : '#94a3b8', border: `1.5px solid ${data.lookingFor === l ? '#e91e8c' : 'rgba(156,39,176,0.2)'}` }}>
+                        style={{ background: data.preference === l ? '#e91e8c' : '#220f38', color: data.preference === l ? '#fff' : '#94a3b8', border: `1.5px solid ${data.preference === l ? '#e91e8c' : 'rgba(156,39,176,0.2)'}` }}>
                         {l}
                       </button>
                     ))}
@@ -214,8 +218,29 @@ export const ProfileSetupPage = () => {
               </div>
             )}
 
-            {/* ── Step 3: Bio ── */}
+            {/* ── Step 3: Goals ── */}
             {step === 3 && (
+              <div className="space-y-4">
+                <label className="text-slate-300 text-xs font-semibold tracking-wide uppercase mb-2 block">My Current Goal</label>
+                <div className="grid grid-cols-1 gap-3">
+                  {GOALS.map((l) => (
+                    <button key={l} onClick={() => set('lookingFor', l)}
+                      className="w-full py-4 px-5 rounded-2xl text-left font-bold transition-all flex items-center justify-between"
+                      style={{ 
+                        background: data.lookingFor === l ? 'rgba(233,30,140,0.1)' : '#220f38', 
+                        color: data.lookingFor === l ? '#e91e8c' : '#fff', 
+                        border: `2px solid ${data.lookingFor === l ? '#e91e8c' : 'transparent'}` 
+                      }}>
+                      {l}
+                      {data.lookingFor === l && <Check size={18} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 4: Bio ── */}
+            {step === 4 && (
               <div className="space-y-4">
                 <div className="p-3.5 rounded-2xl flex items-start gap-3" style={{ background: 'rgba(233,30,140,0.08)', border: '1px solid rgba(233,30,140,0.2)' }}>
                   <Star size={15} className="text-brand-pink mt-0.5 shrink-0" />

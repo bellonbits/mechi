@@ -27,12 +27,17 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-6 rounded-t-[32px] overflow-hidden"
-            style={{ background: '#1a0828', borderTop: '1px solid rgba(156,39,176,0.3)' }}
+            className="fixed bottom-0 left-0 right-0 z-50 p-6 pb-safe rounded-t-[40px] overflow-hidden"
+            style={{ 
+              background: '#1a0828', 
+              borderTop: '1px solid rgba(156,39,176,0.3)',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
           >
-            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6" />
+            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6 shrink-0" />
             
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 shrink-0">
               <h2 className="text-white text-2xl font-black">Filters</h2>
               <button 
                 onClick={onClose}
@@ -42,11 +47,11 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
               </button>
             </div>
 
-            <div className="space-y-8 pb-10">
+            <div className="space-y-8 pb-32">
               {/* Distance */}
               <div>
                 <div className="flex justify-between mb-4">
-                  <span className="text-white font-bold">Max Distance</span>
+                  <span className="text-white font-bold text-sm tracking-tight">Max Distance</span>
                   <span className="text-brand-pink font-bold">{filters.distance} km</span>
                 </div>
                 <input 
@@ -55,62 +60,62 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
                   max="100" 
                   value={filters.distance}
                   onChange={(e) => setFilters({ ...filters, distance: parseInt(e.target.value) })}
-                  className="w-full accent-brand-pink"
+                  className="w-full accent-brand-pink h-1.5 rounded-full appearance-none bg-white/10"
                 />
               </div>
 
               {/* Age Range */}
               <div>
                 <div className="flex justify-between mb-4">
-                  <span className="text-white font-bold">Age Preference</span>
+                  <span className="text-white font-bold text-sm tracking-tight">Age Preference</span>
                   <span className="text-brand-pink font-bold">{filters.minAge} - {filters.maxAge}</span>
                 </div>
-                {/* Simplified age range for UI demonstration */}
                 <div className="flex items-center gap-4">
                   <input 
                     type="number"
                     value={filters.minAge}
                     onChange={(e) => setFilters({ ...filters, minAge: parseInt(e.target.value) })}
-                    className="w-full bg-white/5 py-3 px-4 rounded-xl text-white outline-none focus:border-brand-pink border border-transparent"
+                    className="w-full bg-white/5 py-4 px-4 rounded-2xl text-white outline-none focus:border-brand-pink border border-transparent font-bold text-center"
                   />
                   <div className="w-4 h-0.5 bg-white/20" />
                   <input 
                     type="number"
                     value={filters.maxAge}
                     onChange={(e) => setFilters({ ...filters, maxAge: parseInt(e.target.value) })}
-                    className="w-full bg-white/5 py-3 px-4 rounded-xl text-white outline-none focus:border-brand-pink border border-transparent"
+                    className="w-full bg-white/5 py-4 px-4 rounded-2xl text-white outline-none focus:border-brand-pink border border-transparent font-bold text-center"
                   />
                 </div>
               </div>
 
               {/* Looking for */}
               <div>
-                <span className="text-white font-bold block mb-4">Looking For</span>
-                <div className="grid grid-cols-2 gap-3">
+                <span className="text-white font-bold text-sm tracking-tight block mb-4">Looking For</span>
+                <div className="grid grid-cols-1 gap-3">
                   {lookingForOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setFilters({ ...filters, lookingFor: opt })}
-                      className={`p-3.5 rounded-2xl text-xs font-bold transition-all text-left flex items-center justify-between ${
-                        filters.lookingFor === opt ? 'bg-brand-pink text-white border-brand-pink' : 'bg-white/5 text-slate-400 border-white/5'
+                      className={`p-5 rounded-2xl text-sm font-bold transition-all flex items-center justify-between ${
+                        filters.lookingFor === opt ? 'bg-brand-pink text-white shadow-[0_0_20px_rgba(233,30,140,0.3)]' : 'bg-white/5 text-slate-400'
                       }`}
-                      style={{ border: '1px solid currentColor' }}
                     >
                       {opt}
-                      {filters.lookingFor === opt && <Check size={14} />}
+                      {filters.lookingFor === opt && <Check size={16} />}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
 
-            <button 
-              onClick={onClose}
-              className="w-full py-4 rounded-2xl bg-brand-pink text-white font-black uppercase text-sm mb-safe"
-              style={{ boxShadow: '0 8px 32px rgba(233,30,140,0.4)' }}
-            >
-              Apply Filters
-            </button>
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#1a0828] via-[#1a0828] to-transparent pt-12">
+              <button 
+                onClick={onClose}
+                className="w-full py-5 rounded-2xl bg-brand-pink text-white font-black uppercase tracking-widest text-sm active:scale-95 transition-transform"
+                style={{ boxShadow: '0 8px 32px rgba(233,30,140,0.4)' }}
+              >
+                Apply Filters
+              </button>
+            </div>
           </motion.div>
         </>
       )}
