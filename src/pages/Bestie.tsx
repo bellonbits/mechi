@@ -135,8 +135,14 @@ export const BestiePage = () => {
   const isInterestedInMen = preference?.toLowerCase().includes('men') || preference?.toLowerCase().includes('everyone');
   
   let personalityType = "Your Bestie";
-  if (isInterestedInWomen && !isInterestedInMen) personalityType = "Your Wingman";
-  else if (isInterestedInMen && !isInterestedInWomen) personalityType = "Your Wingwoman";
+  let avatarUrl = "/bestie-female.png"; // Default
+  if (isInterestedInWomen && !isInterestedInMen) {
+    personalityType = "Your Wingman";
+    avatarUrl = "/bestie-male.png";
+  } else if (isInterestedInMen && !isInterestedInWomen) {
+    personalityType = "Your Wingwoman";
+    avatarUrl = "/bestie-female.png";
+  }
 
   return (
     <div className="min-h-screen pb-nav-scroll app-bg flex flex-col relative overflow-hidden">
@@ -153,7 +159,7 @@ export const BestiePage = () => {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-tr from-brand-pink to-brand-purple p-[2px]">
               <div className="w-full h-full rounded-full bg-app-surface flex items-center justify-center overflow-hidden">
-                <Sparkles size={18} className="text-brand-pink" />
+                <img src={avatarUrl} className="w-full h-full object-cover" alt="Bestie" />
               </div>
             </div>
             <div>
@@ -171,8 +177,8 @@ export const BestiePage = () => {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center py-12 space-y-4">
-            <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-2">
-              <Sparkles size={40} className="text-brand-pink" />
+            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-2 p-1 bg-gradient-to-tr from-brand-pink to-brand-purple">
+              <img src={avatarUrl} className="w-full h-full object-cover rounded-full" alt="Bestie" />
             </div>
             <h3 className="text-white font-black text-xl">Meet {profile?.ai_bestie_name || 'your Bestie'}</h3>
             <p className="text-slate-400 text-sm max-w-[260px] leading-relaxed">
@@ -200,8 +206,8 @@ export const BestiePage = () => {
             className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div className={`max-w-[85%] flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${m.role === 'user' ? 'bg-brand-pink/20' : 'bg-brand-purple/20'}`}>
-                {m.role === 'user' ? <User size={14} className="text-brand-pink" /> : <Bot size={14} className="text-brand-purple" />}
+              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${m.role === 'user' ? 'bg-brand-pink/20' : 'bg-brand-purple/20'}`}>
+                {m.role === 'user' ? <User size={14} className="text-brand-pink" /> : <img src={avatarUrl} className="w-full h-full object-cover" />}
               </div>
               <div 
                 className={`px-4 py-3 rounded-[20px] text-sm leading-relaxed ${
@@ -222,8 +228,8 @@ export const BestiePage = () => {
         {loading && (
           <div className="flex justify-start">
             <div className="max-w-[85%] flex gap-2">
-              <div className="shrink-0 w-8 h-8 rounded-full bg-brand-purple/20 flex items-center justify-center">
-                <Bot size={14} className="text-brand-purple" />
+              <div className="shrink-0 w-8 h-8 rounded-full bg-brand-purple/20 flex items-center justify-center overflow-hidden">
+                <img src={avatarUrl} className="w-full h-full object-cover opacity-50" />
               </div>
               <div className="px-5 py-4 rounded-[20px] rounded-tl-none bg-white/5 border border-white/10 flex items-center gap-1.5">
                 <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-brand-purple" />
