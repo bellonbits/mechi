@@ -20,19 +20,20 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
           />
           <motion.div 
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-6 pb-safe rounded-t-[40px] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] p-6 pb-[env(safe-area-inset-bottom,20px)] rounded-t-[40px] overflow-hidden"
             style={{ 
               background: '#1a0828', 
               borderTop: '1px solid rgba(156,39,176,0.3)',
-              maxHeight: '90vh',
-              overflowY: 'auto'
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              paddingBottom: 'calc(max(20px, env(safe-area-inset-bottom)) + 10px)'
             }}
           >
             <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-6 shrink-0" />
@@ -107,7 +108,7 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters }: FilterModa
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#1a0828] via-[#1a0828] to-transparent pt-12">
+            <div className="absolute bottom-0 left-0 right-0 p-6 pb-[calc(env(safe-area-inset-bottom,20px)+10px)] bg-gradient-to-t from-[#1a0828] via-[#1a0828] to-transparent pt-12 z-[102]">
               <button 
                 onClick={onClose}
                 className="w-full py-5 rounded-2xl bg-brand-pink text-white font-black uppercase tracking-widest text-sm active:scale-95 transition-transform"
