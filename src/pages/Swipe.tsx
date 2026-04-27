@@ -106,7 +106,7 @@ export const SwipePage = () => {
     minAge: 18,
     maxAge: 45,
     distance: 20,
-    lookingFor: 'Any'
+    lookingFor: myProfile?.looking_for || 'Any'
   });
 
   const { profiles, loading, recordSwipe } = useDiscoverProfiles(filters);

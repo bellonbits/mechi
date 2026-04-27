@@ -3,11 +3,24 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
+import { supabase } from '../utils/supabase';
+import { useAuthStore } from '../store/useAuthStore';
 
 export const PublicProfilePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const profile = location.state?.profile as Profile;
+  const { user } = useAuthStore();
+
+  const handleSwipe = async (dir: 'left' | 'right') => {
+    if (!user || !profile) return;
+    await supabase.from('swipes').upsert({
+      swiper_id: user.id,
+      swiped_id: profile.id,
+      direction: dir
+    }, { onConflict: 'swiper_id,swiped_id' });
+    navigate(-1);
+  };
 
   if (!profile) {
     return (
@@ -111,9 +124,30 @@ export const PublicProfilePage = () => {
         {/* Safety Tip */}
         <div className="p-5 rounded-3xl bg-red-500/5 border border-red-500/10 mt-4">
           <p className="text-slate-500 text-[10px] uppercase font-black mb-1">Safety</p>
-          <p className="text-slate-400 text-xs">
+          <p className="text-slate-400 text-xs text-balance">
             Always meet in public places and never share your financial details with strangers.
           </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-4 py-8">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleSwipe('left')}
+            className="flex-1 py-4.5 rounded-[22px] font-black text-slate-400 text-sm uppercase tracking-widest"
+            style={{ background: '#1a0828', border: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            Not for me
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleSwipe('right')}
+            className="flex-[1.5] py-4.5 rounded-[22px] font-black text-white text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-[0_0_40px_rgba(233,30,140,0.3)]"
+            style={{ background: 'linear-gradient(135deg,#e91e8c,#9c27b0)' }}
+          >
+            <Heart size={18} fill="currentColor" />
+            Like
+          </motion.button>
         </div>
       </div>
     </div>

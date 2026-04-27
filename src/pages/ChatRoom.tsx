@@ -98,10 +98,10 @@ export const ChatRoomPage = () => {
     channelRef.current?.send({ type: 'broadcast', event: 'typing', payload: { user_id: user?.id } });
   };
 
-  const sendMessage = async () => {
-    const text = input.trim();
+  const sendMessage = async (overrideText?: string) => {
+    const text = (overrideText || input).trim();
     if (!text || sending) return;
-    setInput('');
+    if (!overrideText) setInput('');
     setSending(true);
 
     const optimistic: Message = {
@@ -272,7 +272,7 @@ export const ChatRoomPage = () => {
               <motion.button
                 key={text}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setInput(text)}
+                onClick={() => sendMessage(text)}
                 className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold text-slate-300"
                 style={{ background: '#1a0828', border: '1px solid rgba(156,39,176,0.3)' }}
               >
