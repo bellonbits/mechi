@@ -5,10 +5,12 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../hooks/useNotifications';
-import { supabase } from '../utils/supabase';
+import { useAuthStore } from '../store/useAuthStore';
+import { getOrCreateConversation } from '../utils/getOrCreateConversation';
 
 export const NotificationsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { notifications, loading, markAsRead, clearAll } = useNotifications();
 
   const getIcon = (type: string) => {
@@ -36,25 +38,16 @@ export const NotificationsPage = () => {
 
   const handleAction = async (notif: any) => {
     markAsRead(notif.id);
-    if (notif.type === 'match' || notif.type === 'message') {
-      try {
-        const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
-          target_user_id: notif.actor_id
-        });
-        if (!error && convId) {
-          navigate(`/chat/${convId}`, { 
-            state: { 
-              name: notif.actor?.full_name, 
-              image: notif.actor?.avatar_url,
-              verified: notif.actor?.is_verified 
-            } 
-          });
-        } else {
-          navigate('/chat');
-        }
-      } catch (err) {
-        navigate('/chat');
-      }
+    if ((notif.type === 'match' || notif.type === 'message') && user && notif.actor_id) {
+      const convId = await getOrCreateConversation(user.id, notif.actor_id);
+      navigate(
+        convId
+          ? `/chat/${convId}`
+          : '/chat',
+        convId
+          ? { state: { name: notif.actor?.full_name, image: notif.actor?.avatar_url, verified: notif.actor?.is_verified } }
+          : undefined
+      );
     }
   };
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useConversations } from '../hooks/useConversations';
 import { useAuthStore } from '../store/useAuthStore';
 import { useMatches } from '../hooks/useProfiles';
-import { supabase } from '../utils/supabase';
+import { getOrCreateConversation } from '../utils/getOrCreateConversation';
 
 const timeAgo = (iso: string) => {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -28,22 +28,13 @@ export const ChatPage = () => {
     c.contact.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const startChat = async (profile: any) => {
-    try {
-      const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
-        target_user_id: profile.id
+  const startChat = async (profile: { id: string; full_name: string; avatar_url: string | null; is_verified: boolean }) => {
+    if (!user) return;
+    const convId = await getOrCreateConversation(user.id, profile.id);
+    if (convId) {
+      navigate(`/chat/${convId}`, {
+        state: { name: profile.full_name, image: profile.avatar_url, verified: profile.is_verified },
       });
-      if (!error && convId) {
-        navigate(`/chat/${convId}`, { 
-          state: { 
-            name: profile.full_name, 
-            image: profile.avatar_url,
-            verified: profile.is_verified 
-          } 
-        });
-      }
-    } catch (err) {
-      console.error('Failed to start chat:', err);
     }
   };
 

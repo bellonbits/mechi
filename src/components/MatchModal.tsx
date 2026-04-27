@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Profile } from '../hooks/useProfiles';
-import { supabase } from '../utils/supabase';
+import { useAuthStore } from '../store/useAuthStore';
+import { getOrCreateConversation } from '../utils/getOrCreateConversation';
 
 interface MatchModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface MatchModalProps {
 
 export const MatchModal = ({ isOpen, onClose, myProfile, matchProfile }: MatchModalProps) => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   return (
     <AnimatePresence>
@@ -93,22 +95,17 @@ export const MatchModal = ({ isOpen, onClose, myProfile, matchProfile }: MatchMo
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={async () => {
-                  try {
-                    const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
-                      target_user_id: matchProfile.id
+                  if (!user) { navigate('/chat'); return; }
+                  const convId = await getOrCreateConversation(user.id, matchProfile.id);
+                  if (convId) {
+                    navigate(`/chat/${convId}`, {
+                      state: {
+                        name: matchProfile.full_name,
+                        image: matchProfile.avatar_url || matchProfile.photos?.[0],
+                        verified: matchProfile.is_verified,
+                      },
                     });
-                    if (!error && convId) {
-                      navigate(`/chat/${convId}`, { 
-                        state: { 
-                          name: matchProfile.full_name, 
-                          image: matchProfile.avatar_url || matchProfile.photos?.[0],
-                          verified: matchProfile.is_verified 
-                        } 
-                      });
-                    } else {
-                      navigate('/chat');
-                    }
-                  } catch (err) {
+                  } else {
                     navigate('/chat');
                   }
                 }}
