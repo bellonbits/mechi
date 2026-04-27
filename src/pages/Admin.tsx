@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Heart, Crown, Shield, Search, Filter, MoreVertical, CheckCircle, Ban, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react';
+import { Users, Heart, Crown, Shield, Search, Filter, MoreVertical, CheckCircle, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { useAuthStore } from '../store/useAuthStore';
-import { Profile } from '../hooks/useProfiles';
+import type { Profile } from '../hooks/useProfiles';
 
 interface Analytics {
   total_users: number;
