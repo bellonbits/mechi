@@ -30,7 +30,7 @@ const GOAL_CATEGORIES = [
 export const ExplorePage = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuthStore();
-  const { profiles, loading } = useDiscoverProfiles();
+  const { profiles } = useDiscoverProfiles();
 
   const displayName = (profile?.full_name as string) || user?.email?.split('@')[0] || 'You';
   const avatarSrc =
