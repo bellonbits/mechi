@@ -28,6 +28,7 @@ import { CookieConsent } from './components/CookieConsent';
 import { supabase } from './utils/supabase';
 import { useAuthStore } from './store/useAuthStore';
 import { ScrollToTop } from './components/ScrollToTop';
+import { MatchListener } from './components/MatchListener';
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <LayoutWrapper>
+          <MatchListener />
           <Routes>
             {/* Entry flow */}
             <Route path="/" element={<Navigate to="/splash" replace />} />
