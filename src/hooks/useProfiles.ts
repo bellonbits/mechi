@@ -53,8 +53,9 @@ export const useDiscoverProfiles = (filters?: { minAge: number; maxAge: number; 
     let query = supabase
       .from('profiles')
       .select('*')
-      .eq('profile_complete', true)
-      .not('id', 'in', `(${swipedIds.join(',') || 'null'})`);
+      .not('id', 'in', `(${swipedIds.join(',') || 'null'})`)
+      .not('full_name', 'is', null)
+      .neq('full_name', '[Deleted]');
 
     // Gender Filter
     if (myPreference === 'Men') query = query.eq('gender', 'Man');
@@ -165,18 +166,31 @@ export const useLikedProfiles = () => {
 
     const fetch = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+
+      // likes.liker_id FK → auth.users (not profiles), so we do a 2-step fetch
+      const { data: likeData, error } = await supabase
         .from('likes')
-        .select('id, created_at, liker:profiles!liker_id(*)')
+        .select('id, created_at, liker_id')
         .eq('liked_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        setLikes(data.map((d: Record<string, unknown>) => ({
-          id: d.id as string,
-          created_at: d.created_at as string,
-          profile: d.liker as Profile,
-        })));
+      if (!error && likeData && likeData.length > 0) {
+        const ids = [...new Set(likeData.map((l) => l.liker_id))];
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', ids);
+        const profileMap = new Map((profileData ?? []).map((p) => [p.id, p]));
+
+        setLikes(
+          likeData.map((l) => ({
+            id: l.id as string,
+            created_at: l.created_at as string,
+            profile: (profileMap.get(l.liker_id) ?? { id: l.liker_id, full_name: 'Mechi User', avatar_url: null, is_verified: false }) as Profile,
+          }))
+        );
+      } else {
+        setLikes([]);
       }
       setLoading(false);
     };
@@ -204,22 +218,31 @@ export const useMatches = () => {
 
     const fetch = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+
+      // matches.user1_id/user2_id FK → auth.users, so use 2-step fetch
+      const { data: matchData, error } = await supabase
         .from('matches')
-        .select(`
-          user1:profiles!user1_id(*),
-          user2:profiles!user2_id(*)
-        `)
+        .select('id, user1_id, user2_id, created_at')
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        const mapped = (data as Record<string, unknown>[]).map((m) => {
-          const u1 = m.user1 as Profile;
-          const u2 = m.user2 as Profile;
-          return u1.id === user.id ? u2 : u1;
+      if (!error && matchData && matchData.length > 0) {
+        const contactIds = matchData.map((m) =>
+          m.user1_id === user.id ? m.user2_id : m.user1_id
+        );
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', [...new Set(contactIds)]);
+        const profileMap = new Map((profileData ?? []).map((p) => [p.id, p]));
+
+        const mapped = matchData.map((m) => {
+          const contactId = m.user1_id === user.id ? m.user2_id : m.user1_id;
+          return (profileMap.get(contactId) ?? { id: contactId, full_name: 'Mechi User', avatar_url: null, is_verified: false }) as Profile;
         });
         setMatches(mapped);
+      } else {
+        setMatches([]);
       }
       setLoading(false);
     };

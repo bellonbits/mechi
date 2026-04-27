@@ -23,31 +23,52 @@ export const useConversations = () => {
 
   const fetch = async () => {
     if (!user) return;
-    const { data, error } = await supabase
+
+    // conversations.user1_id/user2_id FK → auth.users (not profiles), so we
+    // can't join profiles in one shot. Fetch conversations then profiles separately.
+    const { data: convData, error } = await supabase
       .from('conversations')
-      .select(`
-        id, last_message, last_message_at,
-        user1:profiles!user1_id(id, full_name, avatar_url, is_verified),
-        user2:profiles!user2_id(id, full_name, avatar_url, is_verified)
-      `)
+      .select('id, last_message, last_message_at, user1_id, user2_id')
       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
       .order('last_message_at', { ascending: false });
 
-    if (!error && data) {
-      const mapped: ConversationItem[] = (data as Record<string, unknown>[]).map((c) => {
-        const u1 = c.user1 as { id: string; full_name: string; avatar_url: string | null; is_verified: boolean };
-        const u2 = c.user2 as { id: string; full_name: string; avatar_url: string | null; is_verified: boolean };
-        const contact = u1.id === user.id ? u2 : u1;
-        return {
-          id: c.id as string,
-          last_message: c.last_message as string | null,
-          last_message_at: c.last_message_at as string,
-          unread: 0,
-          contact: { ...contact, online: false },
-        };
-      });
-      setConvs(mapped);
+    if (error || !convData || convData.length === 0) {
+      setConvs([]);
+      setLoading(false);
+      return;
     }
+
+    const contactIds = [
+      ...new Set(
+        convData.map((c) => (c.user1_id === user.id ? c.user2_id : c.user1_id))
+      ),
+    ];
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, is_verified')
+      .in('id', contactIds);
+
+    const profileMap = new Map((profileData ?? []).map((p) => [p.id, p]));
+
+    const mapped: ConversationItem[] = convData.map((c) => {
+      const contactId = c.user1_id === user.id ? c.user2_id : c.user1_id;
+      const contact = profileMap.get(contactId) ?? {
+        id: contactId,
+        full_name: 'Mechi User',
+        avatar_url: null,
+        is_verified: false,
+      };
+      return {
+        id: c.id,
+        last_message: c.last_message,
+        last_message_at: c.last_message_at,
+        unread: 0,
+        contact: { ...contact, online: false },
+      };
+    });
+
+    setConvs(mapped);
     setLoading(false);
   };
 
