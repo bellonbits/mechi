@@ -36,7 +36,8 @@ const NO_NAV = ['/splash', '/onboarding', '/auth', '/setup', '/subscription', '/
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const showNav = !NO_NAV.includes(location.pathname);
+  // Also hide nav for /chat/:id (room) but keep it for /chat (list)
+  const showNav = !NO_NAV.includes(location.pathname) && !location.pathname.match(/^\/chat\/.+/);
   return (
     <>
       <main>{children}</main>
