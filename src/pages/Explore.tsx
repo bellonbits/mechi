@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useDiscoverProfiles } from '../hooks/useProfiles';
+import { useNotifications } from '../hooks/useNotifications';
 
 const GOAL_CATEGORIES = [
   {
@@ -31,6 +32,8 @@ export const ExplorePage = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuthStore();
   const { profiles } = useDiscoverProfiles();
+  const { notifications } = useNotifications();
+  const unreadCount = notifications.filter(n => !n.read_at).length;
 
   const displayName = (profile?.full_name as string) || user?.email?.split('@')[0] || 'You';
   const avatarSrc =
@@ -68,10 +71,18 @@ export const ExplorePage = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 active:scale-95 transition-transform"
+            className="relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 active:scale-95 transition-transform"
             onClick={() => navigate('/notifications')}
           >
             <Bell size={17} className="text-white" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-black text-white px-1"
+                style={{ background: '#e91e8c', boxShadow: '0 0 8px rgba(233,30,140,0.7)' }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </button>
           <button
             className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 active:scale-95 transition-transform"

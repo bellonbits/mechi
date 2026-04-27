@@ -30,6 +30,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { ScrollToTop } from './components/ScrollToTop';
 import { MatchListener } from './components/MatchListener';
 import { CallListener } from './components/CallListener';
+import { ToastListener } from './components/ToastListener';
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ function App() {
         <LayoutWrapper>
           <MatchListener />
           <CallListener />
+          <ToastListener />
           <Routes>
             {/* Entry flow */}
             <Route path="/" element={<Navigate to="/splash" replace />} />
