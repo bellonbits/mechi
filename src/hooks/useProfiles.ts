@@ -194,3 +194,44 @@ export const useLikedProfiles = () => {
 
   return { likes, loading };
 };
+export const useMatches = () => {
+  const { user } = useAuthStore();
+  const [matches, setMatches] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetch = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('matches')
+        .select(`
+          user1:profiles!matches_user1_id_fkey(*),
+          user2:profiles!matches_user2_id_fkey(*)
+        `)
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        const mapped = (data as Record<string, unknown>[]).map((m) => {
+          const u1 = m.user1 as Profile;
+          const u2 = m.user2 as Profile;
+          return u1.id === user.id ? u2 : u1;
+        });
+        setMatches(mapped);
+      }
+      setLoading(false);
+    };
+
+    fetch();
+    const channel = supabase
+      .channel('matches_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'matches' }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  return { matches, loading };
+};
